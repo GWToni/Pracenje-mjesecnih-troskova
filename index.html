@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <title>Praćenje mjesečnih troškova</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- SheetJS (Excel export) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- jsPDF (PDF export) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- html2canvas (pretvaranje grafa u sliku) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+<header>
+    <h1>Praćenje osobnih troškova</h1>
+</header>
+
+<nav>
+    <ul>
+        <li class="nav-item active" data-target="spendingContent">Potrošnja</li>
+        <li class="nav-item" data-target="transakcijeContent">Transakcije</li>
+        <li class="nav-item" data-target="kategorijeContent">Kategorije</li>
+    </ul>
+
+    <div id="settingsBtn">⚙️</div>
+    <div id="hamburgerBtn">☰</div>
+</nav>
+
+<div id="mobileMenu" class="hidden">
+    <div class="mobile-menu-content">
+        <button class="closeMobileMenu">✖</button>
+
+        <h3>Izbornik</h3>
+        <ul>
+            <li data-target="spendingContent" class="mobile-nav-item">Pregled potrošnje</li>
+            <li data-target="transakcijeContent" class="mobile-nav-item">Transakcije</li>
+            <li data-target="kategorijeContent" class="mobile-nav-item">Kategorije</li>
+            <li id="mobileSettingsBtn">Postavke</li>
+        </ul>
+    </div>
+</div>
+
+<div id="mainLayout">
+
+    <!-- LIJEVI PANEL -->
+    <aside id="leftPanel">
+        <h2>Pregled potrošnje</h2>
+
+        <div class="date-row">
+            <div class="date-box">
+                <label for="mjesec">Mjesec:</label>
+                <select id="mjesec">
+                    <option value="1">Siječanj</option>
+                    <option value="2">Veljača</option>
+                    <option value="3">Ožujak</option>
+                    <option value="4">Travanj</option>
+                    <option value="5">Svibanj</option>
+                    <option value="6">Lipanj</option>
+                    <option value="7">Srpanj</option>
+                    <option value="8">Kolovoz</option>
+                    <option value="9">Rujan</option>
+                    <option value="10">Listopad</option>
+                    <option value="11">Studeni</option>
+                    <option value="12">Prosinac</option>
+                </select>
+            </div>
+
+            <div class="date-box">
+                <label for="godina">Godina:</label>
+                <select id="godina">
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026" selected>2026</option>
+                    <option value="2027">2027</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="graf-wrapper">
+            <canvas id="grafKategorije"></canvas>
+        </div>
+
+        <div class="stats-row-left">
+            <div class="card">
+                <h3>Top 3 troška</h3>
+                <ul id="topTransakcijeList"></ul>
+            </div>
+
+            <div class="card" id="dailyStats"></div>
+        </div>
+    </aside>
+
+    <!-- DESNI PANEL -->
+    <main id="rightPanel">
+
+        <!-- SPENDING SADRŽAJ -->
+        <section id="spendingContent" class="contentSection">
+            <h2>Potrošnja</h2>
+
+            <h3>Prihodi za odabrani mjesec</h3>
+            <button id="dodajPrihodBtn">Dodaj prihod</button>
+            <ul id="listaPrihoda"></ul>
+
+            <p>Ukupni prihod: <span id="ukupniPrihodi">0 €</span></p>
+            <p>Ukupni troškovi: <span id="ukupniTroskovi">0 €</span></p>
+            <p>Preostalo: <span id="preostaloSaldo">0 €</span></p>
+
+            <h3>Potrošnja po kategorijama</h3>
+            <ul id="spendingCategoryList"></ul>
+        </section>
+
+        <!-- TRANSAKCIJE SADRŽAJ -->
+        <section id="transakcijeContent" class="contentSection hidden">
+            <h2>Transakcije</h2>
+
+            <div class="transakcije-layout">
+
+                <div class="transakcije-main">
+                    <div class="transakcije-form">
+                        <label for="kategorijaUnos">Kategorija:</label>
+                        <select id="kategorijaUnos"></select>
+
+                        <label for="iznosUnos">Iznos:</label>
+                        <input type="number" id="iznosUnos" placeholder="Iznos">
+
+                        <label for="datumUnos">Datum:</label>
+                        <input type="date" id="datumUnos">
+
+                        <label for="opisUnos">Opis:</label>
+                        <input type="text" id="opisUnos" placeholder="Opis (npr. Konzum, ručak...)">
+
+                        <div class="repeat-row">
+                            <input type="checkbox" id="ponavljajCheckbox">
+                            <label for="ponavljajCheckbox">Ponavljaj svaki mjesec</label>
+                        </div>
+
+                        <div id="repeatOptions" class="hidden">
+                            <label for="repeatStart">Od datuma:</label>
+                            <input type="date" id="repeatStart">
+
+                            <label for="repeatEnd">Do datuma:</label>
+                            <input type="date" id="repeatEnd">
+                        </div>
+
+                        <button id="dodajTransakciju">Dodaj transakciju</button>
+                    </div>
+
+                    <h3>Transakcije za odabrani mjesec</h3>
+                    <ul id="listaTransakcija"></ul>
+                </div>
+
+                <!-- KALKULATOR -->
+                <aside id="kalkulator" class="kalkulator">
+                    <div class="kalkulator-display" id="calcDisplay">0</div>
+                    <div class="kalkulator-grid">
+                        <button data-calc="C">C</button>
+                        <button data-calc="/">÷</button>
+                        <button data-calc="*">×</button>
+                        <button data-calc="back">⌫</button>
+
+                        <button data-calc="7">7</button>
+                        <button data-calc="8">8</button>
+                        <button data-calc="9">9</button>
+                        <button data-calc="-">−</button>
+
+                        <button data-calc="4">4</button>
+                        <button data-calc="5">5</button>
+                        <button data-calc="6">6</button>
+                        <button data-calc="+">+</button>
+
+                        <button data-calc="1">1</button>
+                        <button data-calc="2">2</button>
+                        <button data-calc="3">3</button>
+                        <button data-calc="=">=</button>
+
+                        <button data-calc="0" class="span-2">0</button>
+                        <button data-calc=".">.</button>
+                        <button id="calcToIznosBtn">→ iznos</button>
+                    </div>
+                </aside>
+
+            </div>
+        </section>
+
+        <!-- KATEGORIJE SADRŽAJ -->
+        <section id="kategorijeContent" class="contentSection hidden">
+            <h2>Kategorije</h2>
+
+            <h3>Osnovne kategorije</h3>
+            <ul id="osnovneKategorije"></ul>
+
+            <h3>Dodaj novu kategoriju</h3>
+            <input type="text" id="novaKategorija" placeholder="Naziv kategorije">
+            <button id="dodajKategoriju">Dodaj kategoriju</button>
+
+            <h3>Korisničke kategorije</h3>
+            <ul id="korisnickeKategorije"></ul>
+        </section>
+
+    </main>
+</div>
+
+<!-- MODALI (bez promjena) -->
+<div id="transakcijaModal" class="modal-overlay hidden">
+    <div class="modal">
+        <h3>Uredi transakciju</h3>
+
+        <label for="editKategorija">Kategorija:</label>
+        <select id="editKategorija"></select>
+
+        <label for="editIznos">Iznos:</label>
+        <input type="number" id="editIznos">
+
+        <label for="editDatum">Datum:</label>
+        <input type="date" id="editDatum">
+
+        <label for="editOpis">Opis:</label>
+        <input type="text" id="editOpis">
+
+        <div class="repeat-row">
+            <input type="checkbox" id="editPonavljajCheckbox">
+            <label for="editPonavljajCheckbox">Ponavljaj svaki mjesec</label>
+        </div>
+
+        <div id="editRepeatOptions" class="hidden">
+            <label for="editRepeatStart">Od datuma:</label>
+            <input type="date" id="editRepeatStart">
+
+            <label for="editRepeatEnd">Do datuma:</label>
+            <input type="date" id="editRepeatEnd">
+        </div>
+
+        <div class="modal-buttons">
+            <button id="spremiTransakcijuBtn">Spremi</button>
+            <button id="obrisiTransakcijuBtn">Obriši</button>
+            <button class="closeModalBtn">Zatvori</button>
+        </div>
+    </div>
+</div>
+
+<div id="prihodModal" class="modal-overlay hidden">
+    <div class="modal">
+        <h3>Uredi prihod</h3>
+
+        <label for="editPrihodIznos">Iznos:</label>
+        <input type="number" id="editPrihodIznos">
+
+        <label for="editPrihodDatum">Datum:</label>
+        <input type="date" id="editPrihodDatum">
+
+        <label for="editPrihodOpis">Opis:</label>
+        <input type="text" id="editPrihodOpis" placeholder="Opis (npr. plaća, honorar...)">
+
+        <div class="modal-buttons">
+            <button id="spremiPrihodBtn">Spremi</button>
+            <button id="obrisiPrihodBtn">Obriši</button>
+            <button class="closeModalBtn">Zatvori</button>
+        </div>
+    </div>
+</div>
+
+<div id="editCategoryModal" class="modal-overlay hidden">
+    <div class="modal">
+        <h3>Uredi kategoriju</h3>
+
+        <label for="editCategoryName">Naziv kategorije:</label>
+        <input type="text" id="editCategoryName">
+
+        <label>Ikona kategorije:</label>
+        <button id="editCategoryIconBtn" class="icon-preview-btn">
+            <span id="editCategoryIconPreview">🍔</span>
+            <span>Promijeni ikonu</span>
+        </button>
+
+        <div class="modal-buttons">
+            <button id="editCategorySaveBtn">Spremi</button>
+            <button id="editCategoryCancelBtn">Odustani</button>
+        </div>
+    </div>
+</div>
+
+<div id="iconPickerModal" class="modal-overlay hidden">
+    <div class="modal">
+        <h3>Odaberi ikonu</h3>
+
+        <div id="iconGrid" class="icon-grid"></div>
+
+        <div class="modal-buttons">
+            <button id="iconPickerCloseBtn">Zatvori</button>
+        </div>
+    </div>
+</div>
+
+<div id="obrisiKategorijuModal" class="modal-overlay hidden">
+    <div class="modal">
+        <h3>Brisanje kategorije</h3>
+        <p>Što želiš napraviti s postojećim transakcijama ove kategorije?</p>
+
+        <div class="obrisi-kategoriju-options">
+            <button id="akcijaObrisanoLabel">Označi kao "(obrisano)"</button>
+            <div>
+                <label for="akcijaPrebaciSelect">Prebaci u kategoriju:</label>
+                <select id="akcijaPrebaciSelect"></select>
+                <button id="akcijaPrebaciBtn">Prebaci</button>
+            </div>
+            <button id="akcijaObrisiSve">Obriši sve transakcije ove kategorije</button>
+        </div>
+
+        <div class="modal-buttons">
+            <button class="closeModalBtn">Zatvori</button>
+        </div>
+    </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settingsModal" class="modal-overlay hidden">
+    <div class="modal">
+
+        <h3>Postavke</h3>
+
+        <h4>Tema</h4>
+        <select id="themeSelect">
+            <option value="system">Sistemska</option>
+            <option value="light">Svijetla</option>
+            <option value="dark">Tamna</option>
+        </select>
+
+        <h4>Valuta</h4>
+        <label for="mainCurrency">Glavna valuta:</label>
+        <select id="mainCurrency"></select>
+
+        <h4>Tip dijagrama</h4>
+        <select id="chartTypeSelect">
+            <option value="donut">Kružni (donut)</option>
+            <option value="bar">Stupčasti</option>
+            <option value="area">Ispunjeni (area)</option>
+        </select>
+
+        <div class="modal-buttons">
+            <button class="closeModalBtn">Zatvori</button>
+            <button id="exportDataBtn" class="btn-primary">Izvezi podatke</button>
+        </div>
+    </div>
+</div>
+
+<div id="exportModal" class="modal-overlay hidden">
+    <div class="modal">
+        <h2>Odaberi format izvoza</h2>
+
+        <div class="export-buttons">
+            <button id="exportExcelBtn" class="btn-primary">Excel (.xlsx)</button>
+            <button id="exportPdfBtn" class="btn-primary">PDF izvještaj</button>
+            <button class="closeModalBtn">Zatvori</button>
+        </div>
+
+    </div>
+</div>
+
+<footer>
+  <p>&copy; 2026, Antonio Jerković</p>
+
+  <div class="social-links">
+    <a href="https://www.facebook.com/profile.php?id=100063699367611#" target="_blank">
+      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/facebook.svg" class="social-icon" alt="Facebook">
+    </a>
+
+    <a href="https://www.instagram.com/sveucilisteuslavonskombrodu/" target="_blank">
+      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/instagram.svg" class="social-icon" alt="Instagram">
+    </a>
+
+    <a href="https://www.youtube.com/channel/UCzlcLvAkTQUSmB9LUMenGGg" target="_blank">
+      <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/youtube.svg" class="social-icon" alt="YouTube">
+    </a>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

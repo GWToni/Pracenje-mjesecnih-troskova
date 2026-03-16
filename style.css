@@ -1,0 +1,950 @@
+/* Minimalna širina cijele stranice */
+body {
+    min-width: 450px;
+}
+
+:root {
+    --bg-gradient: linear-gradient(135deg, #e3f2fd, #fffde7);
+    --bg: #ffffff;
+    --text: #0d1b2a;
+    --text-soft: #455a64;
+    --primary: #1565c0;
+    --primary-dark: #0d47a1;
+    --accent: #ffeb3b;
+    --panel-bg: #f5f7fb;
+    --card-bg: #ffffff;
+    --border: #c5d3e0;
+    --danger: #d32f2f;
+    --danger-dark: #9a0007;
+    --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* DARK MODE */
+[data-theme="dark"] {
+    --bg-gradient: linear-gradient(135deg, #020617, #0b1120);
+    --bg: #020617;
+    --text: #e6edf3;
+    --text-soft: #9ca3af;
+    --primary: #3b82f6;
+    --primary-dark: #1d4ed8;
+    --accent: #facc15;
+    --panel-bg: #020617;
+    --card-bg: #020617;
+    --border: #1f2937;
+    --danger: #f97373;
+    --danger-dark: #ef4444;
+    --shadow-soft: 0 12px 35px rgba(0, 0, 0, 0.6);
+}
+
+/* GLOBAL */
+body {
+    font-family: Arial, sans-serif;
+    background: var(--bg-gradient);
+    margin: 0;
+    padding: 0;
+    color: var(--text);
+}
+
+h1 {
+    background-color: var(--primary-dark);
+    color: #ffffff;
+    padding: 20px;
+    text-align: center;
+    margin: 0;
+}
+
+/* NAVIGACIJA – premium izgled */
+nav {
+    display: flex;
+    align-items: center;
+    position: relative;
+    background-color: var(--primary-dark);
+    padding: 10px 0;
+    top: 0;
+    z-index: 1000;
+}
+
+nav ul {
+    display: flex;
+    gap: 24px;
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+}
+
+nav li {
+    color: var(--nav-text-light);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 8px 18px;
+    border-radius: 999px;
+    transition: 0.2s ease;
+    position: relative;
+}
+
+nav li::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 4px;
+    height: 2px;
+    border-radius: 999px;
+    background: transparent;
+    transition: 0.2s ease;
+}
+
+nav li:hover {
+    color: var(--primary); /* lijepa plava u light modu */
+}
+[data-theme="dark"] nav li:hover {
+    color: var(--accent); /* žuta u dark modu */
+}
+
+
+nav li:hover::after {
+    background: var(--accent);
+}
+
+nav li.active {
+    color: var(--primary);
+}
+[data-theme="dark"] nav li.active {
+    color: var(--accent);
+}
+
+
+nav li.active::after {
+    background: var(--accent);
+}
+
+/* SETTINGS IKONA – desno poravnata */
+#settingsBtn {
+    position: absolute;
+    right: 16px;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 6px 10px;
+    color: #ffffff;
+    transition: 0.2s ease;
+}
+
+#settingsBtn:hover {
+    transform: rotate(30deg) scale(1.15);
+    color: var(--accent);
+}
+
+/* LAYOUT */
+#mainLayout {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+}
+
+/* LIJEVI PANEL */
+#leftPanel {
+    width: 35%;
+    background: var(--panel-bg);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-soft);
+    color: var(--text);
+}
+
+#leftPanel h2 {
+    margin-top: 0;
+}
+
+/* GRAF */
+#grafKategorije {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 20px auto;
+    display: block;
+}
+
+/* DESNI PANEL */
+#rightPanel {
+    width: 65%;
+    background: var(--panel-bg);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-soft);
+    color: var(--text);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* LISTE */
+ul {
+    padding: 0;
+    list-style: none;
+}
+
+li {
+    background-color: var(--card-bg);
+    padding: 10px;
+    margin-bottom: 8px;
+    border-left: 5px solid var(--primary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+}
+
+/* INPUTI */
+input,
+select {
+    padding: 12px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    width: 100%;
+    background: var(--card-bg);
+    color: var(--text);
+    box-sizing: border-box;
+}
+
+/* ODABIR MJESECA – proporcionalno manji */
+#mjesec {
+    font-size: 18px;
+    padding: 10px 15px;
+    width: 80%;
+}
+
+/* GUMBI */
+button {
+    background-color: var(--primary);
+    color: #ffffff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.2s;
+}
+
+button:hover {
+    background-color: var(--accent);
+    color: var(--primary-dark);
+}
+
+/* IKONE */
+.category-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* POPUP OVERLAY */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(6px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal-overlay:not(.hidden) {
+    display: flex;
+}
+
+/* POPUP – DESKTOP */
+.modal {
+    background: var(--card-bg) !important;
+    border-radius: 15px;
+    padding: 25px;
+    width: 420px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(18px);
+    animation: fadeIn 0.25s ease;
+    color: var(--text);
+}
+
+/* POPUP – MOBITEL FULLSCREEN */
+@media (max-width: 700px) {
+    .modal {
+        width: 90%;
+        max-width: 350px;
+        max-height: 80vh;
+        height: auto;
+        overflow-y: auto;
+        border-radius: 10px;
+    }
+}
+
+/* POPUP BUTTONS */
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+/* IKONA GRID */
+#ikonaGrid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-top: 15px;
+}
+
+#ikonaGrid img {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#ikonaGrid img:hover {
+    transform: scale(1.2);
+}
+
+/* ANIMACIJA */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.repeat-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin: 15px 0;
+}
+
+.repeat-row label {
+    font-size: 18px;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* GUMBI UREDI / OBRIŠI */
+.btn-edit,
+.btn-delete {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 15px;
+    cursor: pointer;
+    border: none;
+    transition: 0.2s;
+}
+
+.btn-edit {
+    background-color: var(--primary);
+    color: #ffffff;
+}
+
+.btn-edit:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-delete {
+    background-color: var(--danger);
+    color: #ffffff;
+}
+
+.btn-delete:hover {
+    background-color: var(--danger-dark);
+}
+
+/* Gumbi u listama kategorija */
+.category-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+}
+
+/* MODAL: UREDI KATEGORIJU */
+.icon-preview-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    font-size: 20px;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text);
+}
+
+.icon-preview-btn:hover {
+    background: var(--accent);
+    color: var(--primary-dark);
+}
+
+/* MODAL: GRID IKONA */
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(55px, 1fr));
+    gap: 12px;
+    padding: 10px 0;
+}
+
+.icon-grid button {
+    font-size: 28px;
+    padding: 10px;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    color: var(--text);
+}
+
+.icon-grid button:hover {
+    background: var(--accent);
+    transform: scale(1.15);
+}
+
+/* POPRAVAK LISTE KATEGORIJA */
+#osnovneKategorije li,
+#korisnickeKategorije li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.category-name {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* SPENDING LISTA */
+#spendingCategoryList li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 5px solid var(--primary-dark);
+    padding: 10px;
+    background: var(--card-bg);
+    border-radius: 6px;
+    font-size: 17px;
+}
+
+/* Modal elementi */
+.modal input,
+.modal select,
+.modal button,
+.modal textarea {
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+.modal-buttons button {
+    width: auto !important;
+}
+
+.modal h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: var(--primary-dark);
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* Tamniji tekst u modalima */
+.modal h3,
+.modal label,
+.modal p,
+.modal span {
+    color: var(--text) !important;
+}
+
+/* Picker ikona – grid ostaje unutar modala */
+#iconPickerModal .modal {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* Mjesec + godina u jednom redu */
+.date-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.date-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.date-box label {
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 5px;
+}
+
+.date-box select {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+}
+
+/* Transakcije – svi inputi i selecti iste širine */
+.transakcije-form label {
+    font-weight: 600;
+    color: var(--text);
+    margin-top: 10px;
+}
+
+.transakcije-form input,
+.transakcije-form select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    font-size: 16px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    background: var(--card-bg);
+    margin-bottom: 12px;
+    color: var(--text);
+}
+
+/* Sekcija za ponavljanje također poravnata */
+#repeatOptions label,
+#editRepeatOptions label {
+    margin-top: 10px;
+}
+
+#repeatOptions input,
+#editRepeatOptions input {
+    width: 100%;
+}
+
+/* SETTINGS PANEL */
+#settingsModal .modal {
+    max-width: 420px;
+}
+
+#settingsModal h4 {
+    margin-top: 20px;
+    color: var(--primary-dark);
+}
+
+#settingsModal select,
+#settingsModal input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    margin-bottom: 12px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    font-size: 16px;
+    background: var(--card-bg);
+    color: var(--text);
+}
+
+#addCurrencyBtn {
+    width: 100%;
+    padding: 10px;
+    background: var(--primary);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 15px;
+}
+
+#addCurrencyBtn:hover {
+    background: var(--primary-dark);
+}
+
+/* Smooth tranzicija teme */
+body,
+.card,
+.sidebar,
+header,
+main {
+    transition: background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+}
+
+/* Layout za transakcije + kalkulator */
+.transakcije-layout {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.transakcije-main {
+    flex: 1 1 auto;
+}
+
+.kalkulator {
+    width: 320px;              /* povećaj ili smanji po želji */
+    padding: 20px;             /* više prostora unutra */
+    border-radius: 14px;
+    background: var(--card-bg, #1f2933);
+    box-shadow: var(--shadow, 0 10px 30px rgba(0,0,0,0.25));
+    display: flex;
+    flex-direction: column;
+    gap: 14px;                 /* veći razmak */
+    backdrop-filter: blur(12px);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+.kalkulator-display {
+    background: rgba(0,0,0,0.15);
+    border-radius: 8px;
+    font-size: 1.8rem;         /* veći prikaz brojeva */
+    padding: 14px;
+    text-align: right;
+    font-weight: 600;
+    min-height: 40px;
+}
+
+.kalkulator-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.kalkulator-grid button {
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    background: rgba(255,255,255,0.06);
+    color: inherit;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    padding: 14px;             /* veće tipke */
+    font-size: 1.2rem;         /* veći tekst */
+}
+
+.kalkulator-grid button:hover {
+    background: rgba(255,255,255,0.12);
+    transform: translateY(-1px);
+}
+
+.kalkulator-grid button:active {
+    transform: translateY(0);
+}
+
+.kalkulator-grid .span-2 {
+    grid-column: span 2;
+}
+
+/* Sakrij kalkulator na manjim ekranima */
+@media (max-width: 768px) {
+    .transakcije-layout {
+        flex-direction: column;
+    }
+
+    #kalkulator {
+        display: none;
+    }
+}
+
+/* Stats row (daily + top 3) */
+.stats-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+
+.stats-row .card {
+    flex: 1 1 250px;
+}
+
+#topTransakcijeList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#topTransakcijeList li {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 0.95rem;
+}
+
+/* Uredi i Obriši – zadrži bijeli tekst na hover */
+.btn-edit:hover,
+.btn-delete:hover,
+.urediTransakcijuBtn:hover,
+.obrisiTransakcijuBtn:hover,
+.urediPrihodBtn:hover {
+    color: #ffffff !important;
+}
+
+/* Hamburger tipka */
+#hamburgerBtn {
+    display: none;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 10px;
+}
+
+/* Mobilni meni (skriven po defaultu) */
+#mobileMenu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    z-index: 9999;
+}
+
+#mobileMenu.hidden {
+    display: none;
+}
+
+.mobile-menu-content {
+    width: 260px;
+    background: var(--card-bg, #1f2933);
+    padding: 20px;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+    animation: slideIn 0.25s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(0); }
+}
+
+.mobile-menu-content h3 {
+    margin-top: 0;
+}
+
+.mobile-menu-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+.mobile-menu-content li {
+    padding: 12px 0;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.closeMobileMenu {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    float: right;
+    cursor: pointer;
+}
+/* MOBITEL – sve ispod 768px */
+@media (max-width: 768px) {
+
+    /* sakrij desktop navigaciju */
+    nav ul {
+        display: none;
+    }
+
+    #settingsBtn {
+        display: none;
+    }
+
+    #hamburgerBtn {
+        display: block;
+    }
+
+    /* layout postaje kolona */
+    #mainLayout {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* desni panel prvi */
+    #rightPanel {
+        order: 1;
+        width: 100% !important;
+    }
+
+    /* lijevi panel drugi, skriven po defaultu */
+    #leftPanel {
+        order: 2;
+        width: 100% !important;
+        display: none;
+    }
+
+    /* SAMO lijevi panel je oblačić */
+    #leftPanel.show-on-mobile {
+        display: block;
+        background: var(--card-bg);
+        border-radius: 18px;
+        padding: 22px;
+        border: 1px solid var(--border);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+
+        /* centriranje i razmak od rubova */
+        width: 92%;
+        margin: 0 auto 25px auto;
+        box-sizing: border-box;
+    }
+
+    /* graf se skalira */
+    #grafKategorije {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        margin: 20px auto;
+        display: block;
+    }
+
+    /* uklanjamo oblačiće sa svih drugih sekcija */
+    .contentSection {
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* unutarnje kartice (Top 3, dnevna statistika) ostaju lijepe */
+    .card {
+        background: var(--card-bg);
+        border-radius: 15px;
+        padding: 18px;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.10);
+        margin-bottom: 18px;
+    }
+    
+    .contentSection {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        box-sizing: border-box;
+    }
+
+    /* Ako želiš i vertikalni razmak */
+    .contentSection h2,
+    .contentSection h3,
+    .contentSection p,
+    .contentSection ul,
+    .contentSection button {
+        margin-left: 4px;
+        margin-right: 4px;
+    }
+}
+
+/* kalkulator nestaje ispod 1224px */
+@media (max-width: 1224px) {
+    #kalkulator {
+        display: none !important;
+    }
+}
+
+/* tipke za export */
+.export-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px; /* razmak između tipki */
+    margin-top: 20px;
+}
+
+.export-buttons button {
+    padding: 8px 14px; /* manja visina i širina */
+    font-size: 14px;   /* manji tekst */
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.export-buttons button:hover {
+    opacity: 0.85;
+}
+
+@media (max-width: 768px) {
+    .export-buttons {
+        flex-direction: column;   /* tipke jedna ispod druge */
+        align-items: center;      /* centriranje */
+        gap: 10px;                /* razmak između tipki */
+    }
+
+    .export-buttons button {
+        width: 80%;               /* tipke šire i ljepše na mobitelu */
+        max-width: 250px;
+    }
+}
+
+/* velicina grafa */
+
+.graf-wrapper {
+    width: 100%;
+    max-width: 360px; /* maksimalna veličina grafa */
+    margin: 0 auto;   /* centriranje */
+}
+
+#grafKategorije {
+    width: 100% !important;
+    height: auto !important;
+}
+
+/* Potpis na dnu stranice */
+
+footer {
+    width: 100%;
+    padding: 20px 0;
+    margin-top: 40px;
+    background: #f5f5f5;
+    text-align: center;
+    border-top: 1px solid #ddd;
+}
+
+footer p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.social-links {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.social-links a {
+    display: inline-block;
+}
+
+.social-icon {
+    width: 26px;
+    height: 26px;
+    opacity: 0.85;
+    transition: 0.2s ease;
+}
+
+.social-icon:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
