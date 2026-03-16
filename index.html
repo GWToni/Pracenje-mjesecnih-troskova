@@ -303,13 +303,23 @@
         <p>Što želiš napraviti s postojećim transakcijama ove kategorije?</p>
 
         <div class="obrisi-kategoriju-options">
-            <button id="akcijaObrisanoLabel">Označi kao "(obrisano)"</button>
-            <div>
-                <label for="akcijaPrebaciSelect">Prebaci u kategoriju:</label>
-                <select id="akcijaPrebaciSelect"></select>
-                <button id="akcijaPrebaciBtn">Prebaci</button>
+            <div class="option option-1">
+                <button id="akcijaObrisanoLabel">Označi kao "(obrisano)"</button>
+                <p class="option-desc">Kategorija će biti vidljiva, ali označena kao obrisana</p>
             </div>
-            <button id="akcijaObrisiSve">Obriši sve transakcije ove kategorije</button>
+
+            <div class="option option-2">
+                <label for="akcijaPrebaciSelect">Prebaci sve transakcije u drugu kategoriju:</label>
+                <div class="prebaci-group">
+                    <select id="akcijaPrebaciSelect"></select>
+                    <button id="akcijaPrebaciBtn">Prebaci</button>
+                </div>
+            </div>
+
+            <div class="option option-3">
+                <button id="akcijaObrisiSve" class="btn-danger">Obriši sve transakcije</button>
+                <p class="option-desc">Ovo se ne može vratiti!</p>
+            </div>
         </div>
 
         <div class="modal-buttons">
@@ -339,7 +349,7 @@
         <select id="chartTypeSelect">
             <option value="donut">Kružni (donut)</option>
             <option value="bar">Stupčasti</option>
-            <option value="area">Ispunjeni (area)</option>
+            <!-- <option value="radar">Radar (Spider)</option> -->
         </select>
 
         <div class="modal-buttons">
