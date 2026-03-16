@@ -122,13 +122,9 @@ document.querySelectorAll(".mobile-nav-item").forEach(item => {
     item.addEventListener("click", () => {
         const target = item.dataset.target;
 
-        // sakrij sve sekcije
         document.querySelectorAll(".contentSection").forEach(sec => sec.classList.add("hidden"));
-
-        // prikaži odabranu
         document.getElementById(target).classList.remove("hidden");
 
-        // lijevi panel samo za Pregled potrošnje
         const leftPanel = document.getElementById("leftPanel");
         if (target === "spendingContent") {
             leftPanel.classList.add("show-on-mobile");
@@ -136,10 +132,8 @@ document.querySelectorAll(".mobile-nav-item").forEach(item => {
             leftPanel.classList.remove("show-on-mobile");
         }
 
-        // zatvori mobilni meni
         document.getElementById("mobileMenu").classList.add("hidden");
 
-        // ažuriraj desktop navigaciju
         document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
         document.querySelector(`.nav-item[data-target="${target}"]`)?.classList.add("active");
     });
@@ -392,29 +386,19 @@ function otvoriPrihodModal(prihod = null) {
     const iznosInput = document.getElementById("editPrihodIznos");
     const datumInput = document.getElementById("editPrihodDatum");
     const opisInput = document.getElementById("editPrihodOpis");
-    const obrisiBtn = document.getElementById("obrisiPrihodBtn");
 
     if (!iznosInput || !datumInput || !opisInput) return;
 
     if (prihod) {
-        // UREĐIVANJE POSTOJEĆEG PRIHODA
         aktivniPrihodID = prihod.id;
         iznosInput.value = prihod.iznos;
         datumInput.value = prihod.datum;
         opisInput.value = prihod.opis || "";
-
-        // Prikaži tipku Obriši
-        if (obrisiBtn) obrisiBtn.style.display = "inline-block";
-
     } else {
-        // DODAVANJE NOVOG PRIHODA
         aktivniPrihodID = null;
         iznosInput.value = "";
         datumInput.value = danasnjiDatum();
         opisInput.value = "";
-
-        // Sakrij tipku Obriši
-        if (obrisiBtn) obrisiBtn.style.display = "none";
     }
 
     modal.classList.remove("hidden");
@@ -457,22 +441,6 @@ if (spremiPrihodBtn) {
     });
 }
 
-const obrisiPrihodBtn = document.getElementById("obrisiPrihodBtn");
-if (obrisiPrihodBtn) {
-    obrisiPrihodBtn.addEventListener("click", () => {
-        if (!aktivniPrihodID) return;
-
-        const potvrda = confirm("Jeste li sigurni da želite obrisati ovaj prihod?");
-        if (!potvrda) return;
-
-        prihodi = prihodi.filter(p => p.id !== aktivniPrihodID);
-        spremiSve();
-        zatvoriSveModale();
-        prikaziPrihode();
-        osvjeziLijeviPanel();
-    });
-}
-
 function prikaziPrihode() {
     const lista = document.getElementById("listaPrihoda");
     if (!lista) return;
@@ -488,6 +456,9 @@ function prikaziPrihode() {
             <button class="btn-edit urediPrihodBtn" data-id="${p.id}">
                 <span>✏️</span><span>Uredi</span>
             </button>
+            <button class="btn-delete obrisiPrihodBtn" data-id="${p.id}">
+                <span>🗑️</span><span>Obriši</span>
+            </button>
         `;
         lista.appendChild(li);
     });
@@ -497,6 +468,12 @@ function prikaziPrihode() {
             const prihod = prihodi.find(p => p.id === btn.dataset.id);
             if (!prihod) return;
             otvoriPrihodModal(prihod);
+        });
+    });
+
+    document.querySelectorAll(".obrisiPrihodBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            otvoriPopup("prihod", btn.dataset.id);
         });
     });
 }
@@ -641,11 +618,7 @@ function prikaziTransakcije() {
 
     document.querySelectorAll(".obrisiTransakcijuBtn").forEach(btn => {
         btn.addEventListener("click", () => {
-            const id = btn.dataset.id;
-            transakcije = transakcije.filter(t => t.id !== id);
-            spremiSve();
-            prikaziTransakcije();
-            osvjeziLijeviPanel();
+            otvoriPopup("transakcija", btn.dataset.id);
         });
     });
 }
@@ -692,17 +665,6 @@ if (spremiTransakcijuBtn) {
         tr.datum = noviDatum;
         tr.opis = noviOpis;
 
-        spremiSve();
-        zatvoriSveModale();
-        prikaziTransakcije();
-        osvjeziLijeviPanel();
-    });
-}
-
-const obrisiTransakcijuBtn = document.getElementById("obrisiTransakcijuBtn");
-if (obrisiTransakcijuBtn) {
-    obrisiTransakcijuBtn.addEventListener("click", () => {
-        transakcije = transakcije.filter(t => t.id !== aktivnaTransakcijaID);
         spremiSve();
         zatvoriSveModale();
         prikaziTransakcije();
@@ -909,6 +871,14 @@ function osvjeziGraf() {
 
     const ctx = canvas.getContext("2d");
 
+    const computedStyle = getComputedStyle(document.documentElement);
+    const textColor = computedStyle.getPropertyValue('--text').trim() || "#0d1b2a";
+    const borderColor = computedStyle.getPropertyValue('--border').trim() || "#c5d3e0";
+
+    // Automatski odabor boje legende ovisno o temi
+    const isDarkMode = document.body.getAttribute("data-theme") === "dark";
+    const legendLabelColor = isDarkMode ? "#ffffff" : "#1a1a1a";
+
     const mjesecTransakcije = transakcije.filter(t => jeUOdabranomMjesecuIGodini(t.datum));
 
     const sumaPoKategoriji = {};
@@ -921,61 +891,141 @@ function osvjeziGraf() {
     const values = [];
 
     for (let katId in sumaPoKategoriji) {
-    const kat = kategorije.find(k => k.id === katId);
-    labels.push(kat ? kat.naziv : "Nepoznato");
-    values.push(sumaPoKategoriji[katId]);
-}
+        const kat = kategorije.find(k => k.id === katId);
+        labels.push(kat ? kat.naziv : "Nepoznato");
+        values.push(sumaPoKategoriji[katId]);
+    }
 
     const boje = [
         "#1565C0", "#FF7043", "#66BB6A", "#AB47BC", "#FFA726",
         "#26C6DA", "#EC407A", "#8D6E63", "#42A5F5", "#D4E157",
         "#5C6BC0", "#FFCA28", "#26A69A", "#EF5350", "#7E57C2"
     ];
-    const bgColors = labels.map((_, i) => boje[i % boje.length] + "CC");
 
     if (graf) graf.destroy();
 
     let type = "doughnut";
     if (userSettings.chartType === "bar") type = "bar";
     if (userSettings.chartType === "area") type = "line";
+    if (userSettings.chartType === "radar") type = "radar";
 
-    const data = {
-        labels,
-        datasets: [{
-            label: "Potrošnja po kategorijama",
-            data: values,
-            backgroundColor: type === "line" ? boje[0] + "66" : bgColors,
-            borderColor: type === "line" ? boje[0] : "#ffffff",
-            borderWidth: 2,
-            tension: 0.35,
-            fill: userSettings.chartType === "area"
-        }]
-    };
+    let data, options;
 
-    const options = {
-        responsive: true,
-        plugins: {
-            legend: { position: "bottom" },
-            tooltip: {
-                callbacks: {
-                    label: function (ctx) {
-                        const dataset = ctx.dataset;
-                        const dataArr = dataset.data || [];
-                        const raw = typeof ctx.parsed === "object" ? ctx.parsed.y : ctx.parsed;
-                        const total = dataArr.reduce((s, v) => s + v, 0);
-                        const percent = total ? ((raw / total) * 100).toFixed(1) : 0;
-                        const iznos = formatEUR(raw);
-                        return `${ctx.label}: ${iznos} (${percent}%)`;
+    if (type === "doughnut") {
+        // Za donut - sve u jedan dataset
+        const bgColors = labels.map((_, i) => boje[i % boje.length] + "CC");
+        data = {
+            labels,
+            datasets: [{
+                label: "Potrošnja po kategorijama",
+                data: values,
+                backgroundColor: bgColors,
+                borderColor: "#ffffff",
+                borderWidth: 2
+            }]
+        };
+        options = {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: "55%",
+            plugins: {
+                legend: { 
+                    position: "bottom",
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: { size: 13 },
+                        color: legendLabelColor,
+                        boxWidth: 12,
+                        boxHeight: 12
                     }
                 }
             }
-        }
-    };
+        };
+    } else if (type === "bar" || type === "line") {
+        // Za bar i line - SVAKA kategorija je vlastiti dataset!
+        const datasets = labels.map((label, i) => ({
+            label: label,
+            data: type === "bar" ? [values[i]] : values,
+            backgroundColor: boje[i % boje.length] + (type === "line" ? "66" : "CC"),
+            borderColor: boje[i % boje.length],
+            borderWidth: 2,
+            tension: 0.35,
+            fill: type === "line"
+        }));
 
-    if (type === "doughnut") {
-        options.cutout = "55%";
-    } else {
-        options.scales = { y: { beginAtZero: true } };
+        data = {
+            labels: type === "bar" ? [""] : undefined,
+            datasets: datasets
+        };
+
+        options = {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: { y: { beginAtZero: true } },
+            plugins: {
+                legend: { 
+                    position: "bottom",
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: { size: 13 },
+                        color: legendLabelColor,
+                        boxWidth: 12,
+                        boxHeight: 12
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (ctx) {
+                            const iznos = formatEUR(ctx.parsed.y || ctx.parsed);
+                            return `${ctx.dataset.label}: ${iznos}`;
+                        }
+                    }
+                }
+            }
+        };
+    } else if (type === "radar") {
+        // Za radar - sve u jedan dataset
+        data = {
+            labels,
+            datasets: [{
+                label: "Potrošnja po kategorijama",
+                data: values,
+                backgroundColor: boje[0] + "33",
+                borderColor: boje[0],
+                borderWidth: 2,
+                pointBackgroundColor: labels.map((_, i) => boje[i % boje.length]),
+                pointBorderColor: "#ffffff",
+                pointRadius: 5,
+                pointHoverRadius: 7
+            }]
+        };
+
+        options = {
+            responsive: true,
+            maintainAspectRatio: true,
+            scales: {
+                r: {
+                    beginAtZero: true,
+                    grid: { color: borderColor },
+                    ticks: { color: textColor }
+                }
+            },
+            plugins: {
+                legend: { 
+                    position: "bottom",
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: { size: 13 },
+                        color: legendLabelColor,
+                        boxWidth: 12,
+                        boxHeight: 12
+                    }
+                }
+            }
+        };
     }
 
     graf = new Chart(ctx, { type, data, options });
@@ -1086,12 +1136,14 @@ if (themeSelectEl) {
         userSettings.theme = themeSelectEl.value;
         spremiSve();
         applyTheme(userSettings.theme);
+        osvjeziGraf();  // DODAJ OVU LINIJU
     });
 }
 
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
     if (userSettings.theme === "system") {
         applyTheme("system");
+        osvjeziGraf();  // DODAJ OVU LINIJU
     }
 });
 
@@ -1222,7 +1274,6 @@ document.addEventListener("click", e => {
         return;
     }
 
-    // broj ili točka
     calcInputDigit(val);
 });
 
@@ -1253,27 +1304,6 @@ if (closeMobileMenu) {
     });
 }
 
-// Klik na stavku u mobilnom meniju
-document.querySelectorAll(".mobile-nav-item").forEach(item => {
-    item.addEventListener("click", () => {
-        const target = item.dataset.target;
-
-        // Sakrij sve sekcije
-        document.querySelectorAll(".contentSection").forEach(sec => sec.classList.add("hidden"));
-
-        // Prikaži odabranu
-        document.getElementById(target).classList.remove("hidden");
-
-        // Zatvori meni
-        mobileMenu.classList.add("hidden");
-
-        // Ažuriraj aktivnu stavku u desktop navigaciji
-        document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
-        document.querySelector(`.nav-item[data-target="${target}"]`)?.classList.add("active");
-    });
-});
-
-// Mobilni meni – otvori postavke
 const mobileSettingsBtn = document.getElementById("mobileSettingsBtn");
 if (mobileSettingsBtn) {
     mobileSettingsBtn.addEventListener("click", () => {
@@ -1285,7 +1315,6 @@ if (mobileSettingsBtn) {
 /* ---------------------------------------------------------
    EXPORT FUNKCIJE
 --------------------------------------------------------- */
-
 
 function normalizeText(text) {
     return text
@@ -1309,7 +1338,6 @@ if (exportDataBtn && exportModal) {
 function exportToExcel() {
     const wb = XLSX.utils.book_new();
 
-    // 1) Pregled mjeseca
     const mjesec = mjesecSelect.value;
     const godina = godinaSelect.value;
 
@@ -1346,7 +1374,6 @@ function exportToExcel() {
     const ws1 = XLSX.utils.aoa_to_sheet(pregledSheet);
     XLSX.utils.book_append_sheet(wb, ws1, "Pregled mjeseca");
 
-    // 2) Transakcije
     const transSheet = mjesecTransakcije.map(t => {
         const kat = kategorije.find(k => k.id === t.kategorija)?.naziv || "Nepoznato";
         return {
@@ -1360,7 +1387,6 @@ function exportToExcel() {
     const ws2 = XLSX.utils.json_to_sheet(transSheet);
     XLSX.utils.book_append_sheet(wb, ws2, "Transakcije");
 
-    // 3) Prihodi
     const prihSheet = mjesecPrihodi.map(p => ({
         Datum: p.datum,
         Iznos: p.iznos,
@@ -1386,18 +1412,15 @@ async function exportToPDF() {
     const mjesecTransakcije = transakcije.filter(t => jeUOdabranomMjesecuIGodini(t.datum));
     const mjesecPrihodi = prihodi.filter(p => jeUOdabranomMjesecuIGodini(p.datum));
 
-    // Naslov
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
     doc.text(`Izvjestaj za ${normalizeText(mjesec)}. ${godina}.`, 300, y, { align: "center" });
     y += 40;
 
-    // Separator
     doc.setLineWidth(1);
     doc.line(margin, y, 555, y);
     y += 20;
 
-    // GRAF – SMANJEN
     const canvas = document.getElementById("grafKategorije");
     const imgData = canvas.toDataURL("image/png");
 
@@ -1407,11 +1430,9 @@ async function exportToPDF() {
     doc.addImage(imgData, "PNG", 150, y, grafWidth, grafHeight);
     y += grafHeight + 30;
 
-    // Separator
     doc.line(margin, y, 555, y);
     y += 30;
 
-    // Transakcije
     doc.setFontSize(18);
     doc.text("Transakcije", margin, y);
     y += 25;
@@ -1430,12 +1451,10 @@ async function exportToPDF() {
         }
     });
 
-    // Separator
     y += 10;
     doc.line(margin, y, 555, y);
     y += 30;
 
-    // Prihodi
     doc.setFontSize(18);
     doc.text("Prihodi", margin, y);
     y += 25;
@@ -1518,82 +1537,6 @@ if (popupYes) {
         pendingDeleteType = null;
         pendingDeleteId = null;
         popup.classList.add("hidden");
-    });
-}
-
-/* ---------------------------------------------------------
-   DODAVANJE DELETE TIPKE U PRIHODE
---------------------------------------------------------- */
-
-function prikaziPrihode() {
-    const lista = document.getElementById("listaPrihoda");
-    if (!lista) return;
-
-    lista.innerHTML = "";
-
-    const mjesecPrihodi = prihodi.filter(p => jeUOdabranomMjesecuIGodini(p.datum));
-
-    mjesecPrihodi.forEach(p => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-            ${formatEUR(p.iznos)} — ${p.opis || "Bez opisa"} (${p.datum})
-            <button class="btn-edit urediPrihodBtn" data-id="${p.id}">✏️ Uredi</button>
-            <button class="btn-delete obrisiPrihodBtn" data-id="${p.id}">🗑️ Obriši</button>
-        `;
-        lista.appendChild(li);
-    });
-
-    document.querySelectorAll(".urediPrihodBtn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const prihod = prihodi.find(p => p.id === btn.dataset.id);
-            if (prihod) otvoriPrihodModal(prihod);
-        });
-    });
-
-    document.querySelectorAll(".obrisiPrihodBtn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            otvoriPopup("prihod", btn.dataset.id);
-        });
-    });
-}
-
-/* ---------------------------------------------------------
-   DODAVANJE DELETE TIPKE U TRANSAKCIJE
---------------------------------------------------------- */
-
-function prikaziTransakcije() {
-    const lista = document.getElementById("listaTransakcija");
-    if (!lista) return;
-
-    lista.innerHTML = "";
-
-    const mjesecTransakcije = transakcije.filter(t => jeUOdabranomMjesecuIGodini(t.datum));
-
-    mjesecTransakcije.forEach(t => {
-        const kat = kategorije.find(k => k.id === t.kategorija);
-        const ikona = kat ? kat.ikona : "❓";
-
-        const li = document.createElement("li");
-        li.innerHTML = `
-            <span class="category-icon">${ikona}</span>
-            ${formatEUR(t.iznos)} — ${t.opis || "Bez opisa"} (${t.datum})
-            <button class="btn-edit urediTransakcijuBtn" data-id="${t.id}">✏️ Uredi</button>
-            <button class="btn-delete obrisiTransakcijuBtn" data-id="${t.id}">🗑️ Obriši</button>
-        `;
-        lista.appendChild(li);
-    });
-
-    document.querySelectorAll(".urediTransakcijuBtn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const tr = transakcije.find(t => t.id === btn.dataset.id);
-            if (tr) otvoriTransakcijaModal(tr);
-        });
-    });
-
-    document.querySelectorAll(".obrisiTransakcijuBtn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            otvoriPopup("transakcija", btn.dataset.id);
-        });
     });
 }
 
