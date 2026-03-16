@@ -1176,6 +1176,7 @@ let calcCurrent = "0";
 let calcStored = null;
 let calcOp = null;
 let calcJustEvaluated = false;
+let calcAwaitingNext = false; // čekamo unos sljedećeg broja nakon operatora
 
 function osvjeziCalcDisplay() {
     const disp = document.getElementById("calcDisplay");
@@ -1188,13 +1189,15 @@ function calcClear() {
     calcStored = null;
     calcOp = null;
     calcJustEvaluated = false;
+    calcAwaitingNext = false;
     osvjeziCalcDisplay();
 }
 
 function calcInputDigit(d) {
-    if (calcJustEvaluated) {
+    if (calcJustEvaluated || calcAwaitingNext) {
         calcCurrent = "0";
         calcJustEvaluated = false;
+        calcAwaitingNext = false;
     }
 
     if (d === ".") {
@@ -1209,14 +1212,20 @@ function calcInputDigit(d) {
 }
 
 function calcSetOp(op) {
+    // Ako je operator već postavljen i čekamo novi broj, samo promijeni operator
+    if (calcAwaitingNext && calcStored !== null) {
+        calcOp = op;
+        return;
+    }
+
     if (calcStored === null) {
         calcStored = parseFloat(calcCurrent) || 0;
     } else if (!calcJustEvaluated) {
         calcEvaluate();
     }
+
     calcOp = op;
-    calcCurrent = "0";
-    calcJustEvaluated = false;
+    calcAwaitingNext = true;
     osvjeziCalcDisplay();
 }
 
@@ -1234,6 +1243,7 @@ function calcEvaluate() {
     calcStored = result;
     calcOp = null;
     calcJustEvaluated = true;
+    calcAwaitingNext = true;
     osvjeziCalcDisplay();
 }
 
