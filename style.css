@@ -963,13 +963,22 @@ footer p {
 @media (max-width: 768px) {
 
     /* sprečava horizontalni scroll na mobitelima */
-    body {
+    html, body {
         min-width: 0;
+        overflow-x: hidden;
     }
 
     /* sakrij desktop navigaciju */
     nav ul {
         display: none;
+    }
+
+    /* nav postaje jednostavniji za mobitele */
+    nav {
+        flex-direction: column;
+        align-items: center;
+        padding: 12px 0;
+        gap: 10px;
     }
 
     #settingsBtn {
@@ -978,13 +987,21 @@ footer p {
 
     #hamburgerBtn {
         display: block;
+        position: static;
+        margin-top: 6px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.12);
+        color: #fff;
     }
 
     /* layout postaje kolona */
     #mainLayout {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 16px;
+        padding: 12px;
+        max-width: 100%;
     }
 
     /* desni panel prvi */
@@ -1005,10 +1022,11 @@ footer p {
         display: block;
         background: var(--card-bg);
         border-radius: 18px;
-        padding: 22px;
+        padding: 18px;
         border: 1px solid var(--border);
         box-shadow: 0 8px 25px rgba(0,0,0,0.12);
-        width: 92%;
+        width: 100%;
+        max-width: 700px;
         margin: 0 auto 25px auto;
         box-sizing: border-box;
     }
@@ -1020,6 +1038,38 @@ footer p {
         height: auto !important;
         margin: 20px auto;
         display: block;
+    }
+
+    /* mobilno prikazivanje sadržaja kao kartice */
+    .contentSection {
+        background: var(--card-bg) !important;
+        border: 1px solid var(--border) !important;
+        box-shadow: var(--shadow-soft) !important;
+        border-radius: 16px !important;
+        padding: 18px !important;
+        width: calc(100% - 32px) !important;
+        max-width: 700px !important;
+        margin: 0 auto 20px !important;
+        box-sizing: border-box !important;
+    }
+
+    .contentSection h2,
+    .contentSection h3,
+    .contentSection p,
+    .contentSection ul,
+    .contentSection button {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    /* prilagodba date-row i transakcija layouta za manje ekrane */
+    .date-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .transakcije-layout {
+        flex-direction: column;
     }
 
     /* uklanjamo oblačiće sa svih drugih sekcija */
