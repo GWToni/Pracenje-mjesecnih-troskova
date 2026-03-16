@@ -1072,6 +1072,88 @@ footer p {
         flex-direction: column;
     }
 
+    /* gumbi uredi/obriši - vertikalno ispod znakova */
+    .category-actions {
+        margin-left: 0;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+        align-items: stretch;
+    }
+
+    .btn-edit,
+    .btn-delete {
+        width: 100%;
+        padding: 10px 12px;
+        font-size: 14px;
+        justify-content: center;
+    }
+
+    /* liste stavaka - prilagodba za mobilni */
+    #spendingCategoryList li,
+    #listaTransakcija li,
+    #listaPrihoda li,
+    #osnovneKategorije li,
+    #korisnickeKategorije li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    #spendingCategoryList li {
+        flex-direction: column;
+    }
+
+    /* modalni oblici - full width na mobitelu */
+    .transakcije-form label,
+    .transakcije-form input,
+    .transakcije-form select {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .repeat-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    #repeatOptions,
+    #editRepeatOptions {
+        width: 100%;
+    }
+
+    /* osiguraj da modali i forme ne izlaze */
+    .modal input,
+    .modal select,
+    .modal label,
+    .modal textarea {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .obrisi-kategoriju-options {
+        width: 100%;
+    }
+
+    .obrisi-kategoriju-options .option {
+        width: 100%;
+    }
+
+    .prebaci-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .prebaci-group select,
+    .prebaci-group button {
+        width: 100%;
+    }
+
     /* uklanjamo oblačiće sa svih drugih sekcija */
     .contentSection {
         background: none !important;
