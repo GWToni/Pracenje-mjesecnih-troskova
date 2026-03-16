@@ -39,8 +39,15 @@
    GLOBALNI STILOVI
    =========================== */
 
+html {
+    box-sizing: border-box;
+}
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
 body {
-    min-width: 450px;
+    min-width: 320px;
     font-family: Arial, sans-serif;
     background: var(--bg-gradient);
     margin: 0;
@@ -954,6 +961,11 @@ footer p {
 
 /* Glavni mobilni layout */
 @media (max-width: 768px) {
+
+    /* sprečava horizontalni scroll na mobitelima */
+    body {
+        min-width: 0;
+    }
 
     /* sakrij desktop navigaciju */
     nav ul {
