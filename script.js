@@ -392,19 +392,29 @@ function otvoriPrihodModal(prihod = null) {
     const iznosInput = document.getElementById("editPrihodIznos");
     const datumInput = document.getElementById("editPrihodDatum");
     const opisInput = document.getElementById("editPrihodOpis");
+    const obrisiBtn = document.getElementById("obrisiPrihodBtn");
 
     if (!iznosInput || !datumInput || !opisInput) return;
 
     if (prihod) {
+        // UREĐIVANJE POSTOJEĆEG PRIHODA
         aktivniPrihodID = prihod.id;
         iznosInput.value = prihod.iznos;
         datumInput.value = prihod.datum;
         opisInput.value = prihod.opis || "";
+
+        // Prikaži tipku Obriši
+        if (obrisiBtn) obrisiBtn.style.display = "inline-block";
+
     } else {
+        // DODAVANJE NOVOG PRIHODA
         aktivniPrihodID = null;
         iznosInput.value = "";
         datumInput.value = danasnjiDatum();
         opisInput.value = "";
+
+        // Sakrij tipku Obriši
+        if (obrisiBtn) obrisiBtn.style.display = "none";
     }
 
     modal.classList.remove("hidden");
@@ -451,6 +461,10 @@ const obrisiPrihodBtn = document.getElementById("obrisiPrihodBtn");
 if (obrisiPrihodBtn) {
     obrisiPrihodBtn.addEventListener("click", () => {
         if (!aktivniPrihodID) return;
+
+        const potvrda = confirm("Jeste li sigurni da želite obrisati ovaj prihod?");
+        if (!potvrda) return;
+
         prihodi = prihodi.filter(p => p.id !== aktivniPrihodID);
         spremiSve();
         zatvoriSveModale();
@@ -1456,6 +1470,130 @@ if (exportPdfBtn) {
     exportPdfBtn.addEventListener("click", () => {
         exportToPDF();
         exportModal.classList.add("hidden");
+    });
+}
+
+/* ---------------------------------------------------------
+   UNIVERZALNO BRISANJE (PRIHODI + TRANSAKCIJE)
+--------------------------------------------------------- */
+
+let pendingDeleteType = null;   // "prihod" ili "transakcija"
+let pendingDeleteId = null;
+
+const popup = document.getElementById("confirmDeletePopup");
+const popupYes = document.getElementById("confirmDeleteYes");
+const popupNo = document.getElementById("confirmDeleteNo");
+
+function otvoriPopup(type, id) {
+    pendingDeleteType = type;
+    pendingDeleteId = id;
+    popup.classList.remove("hidden");
+}
+
+if (popupNo) {
+    popupNo.addEventListener("click", () => {
+        pendingDeleteType = null;
+        pendingDeleteId = null;
+        popup.classList.add("hidden");
+    });
+}
+
+if (popupYes) {
+    popupYes.addEventListener("click", () => {
+
+        if (pendingDeleteType === "prihod") {
+            prihodi = prihodi.filter(p => p.id !== pendingDeleteId);
+            spremiSve();
+            prikaziPrihode();
+            osvjeziLijeviPanel();
+        }
+
+        if (pendingDeleteType === "transakcija") {
+            transakcije = transakcije.filter(t => t.id !== pendingDeleteId);
+            spremiSve();
+            prikaziTransakcije();
+            osvjeziLijeviPanel();
+        }
+
+        pendingDeleteType = null;
+        pendingDeleteId = null;
+        popup.classList.add("hidden");
+    });
+}
+
+/* ---------------------------------------------------------
+   DODAVANJE DELETE TIPKE U PRIHODE
+--------------------------------------------------------- */
+
+function prikaziPrihode() {
+    const lista = document.getElementById("listaPrihoda");
+    if (!lista) return;
+
+    lista.innerHTML = "";
+
+    const mjesecPrihodi = prihodi.filter(p => jeUOdabranomMjesecuIGodini(p.datum));
+
+    mjesecPrihodi.forEach(p => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+            ${formatEUR(p.iznos)} — ${p.opis || "Bez opisa"} (${p.datum})
+            <button class="btn-edit urediPrihodBtn" data-id="${p.id}">✏️ Uredi</button>
+            <button class="btn-delete obrisiPrihodBtn" data-id="${p.id}">🗑️ Obriši</button>
+        `;
+        lista.appendChild(li);
+    });
+
+    document.querySelectorAll(".urediPrihodBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const prihod = prihodi.find(p => p.id === btn.dataset.id);
+            if (prihod) otvoriPrihodModal(prihod);
+        });
+    });
+
+    document.querySelectorAll(".obrisiPrihodBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            otvoriPopup("prihod", btn.dataset.id);
+        });
+    });
+}
+
+/* ---------------------------------------------------------
+   DODAVANJE DELETE TIPKE U TRANSAKCIJE
+--------------------------------------------------------- */
+
+function prikaziTransakcije() {
+    const lista = document.getElementById("listaTransakcija");
+    if (!lista) return;
+
+    lista.innerHTML = "";
+
+    const mjesecTransakcije = transakcije.filter(t => jeUOdabranomMjesecuIGodini(t.datum));
+
+    mjesecTransakcije.forEach(t => {
+        const kat = kategorije.find(k => k.id === t.kategorija);
+        const ikona = kat ? kat.ikona : "❓";
+
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <span class="category-icon">${ikona}</span>
+            ${formatEUR(t.iznos)} — ${t.opis || "Bez opisa"} (${t.datum})
+            <button class="btn-edit urediTransakcijuBtn" data-id="${t.id}">✏️ Uredi</button>
+            <button class="btn-delete obrisiTransakcijuBtn" data-id="${t.id}">🗑️ Obriši</button>
+        `;
+        lista.appendChild(li);
+    });
+
+    document.querySelectorAll(".urediTransakcijuBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const tr = transakcije.find(t => t.id === btn.dataset.id);
+            if (tr) otvoriTransakcijaModal(tr);
+        });
+    });
+
+    document.querySelectorAll(".obrisiTransakcijuBtn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            otvoriPopup("transakcija", btn.dataset.id);
+        });
     });
 }
 
