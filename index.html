@@ -240,7 +240,6 @@
 
         <div class="modal-buttons">
             <button id="spremiTransakcijuBtn">Spremi</button>
-            <button id="obrisiTransakcijuBtn">Obriši</button>
             <button class="closeModalBtn">Zatvori</button>
         </div>
     </div>
@@ -261,7 +260,6 @@
 
         <div class="modal-buttons">
             <button id="spremiPrihodBtn">Spremi</button>
-            <button id="obrisiPrihodBtn">Obriši</button>
             <button class="closeModalBtn">Zatvori</button>
         </div>
     </div>
@@ -361,6 +359,19 @@
             <button class="closeModalBtn">Zatvori</button>
         </div>
 
+    </div>
+</div>
+
+<!-- UNIVERZALNI POPUP ZA POTVRDU BRISANJA -->
+<div id="confirmDeletePopup" class="confirm-overlay hidden">
+    <div class="confirm-box">
+        <h3>Jeste li sigurni?</h3>
+        <p>Ova radnja je trajna i ne može se poništiti.</p>
+
+        <div class="confirm-buttons">
+            <button id="confirmDeleteYes" class="btn-danger">Obriši</button>
+            <button id="confirmDeleteNo" class="btn-secondary">Odustani</button>
+        </div>
     </div>
 </div>
 
