@@ -87,7 +87,7 @@ function formatEUR(iznos) {
 --------------------------------------------------------- */
 
 function danasnjiDatum() {
-    return new Date().toISOString().split("T")[0];
+    return new Date().toISOString("hr-HR").split("T")[0];
 }
 
 function spremiSve() {
