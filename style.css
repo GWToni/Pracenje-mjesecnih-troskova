@@ -1198,6 +1198,9 @@ footer p {
 }
 
 /* razmak za tipku ponavljaj svaki mjesec */
-.repeat-btn {
-    margin-bottom: 12px; /* razmak ispod tipke */
+@media (max-width: 768px) {
+    .repeat-btn {
+        margin-bottom: 20px !important;
+        margin-top: 10px !important;
+    }
 }
