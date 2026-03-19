@@ -452,7 +452,7 @@ function prikaziPrihode() {
     mjesecPrihodi.forEach(p => {
         const li = document.createElement("li");
         li.innerHTML = `
-            ${formatEUR(p.iznos)} — ${p.opis || "Bez opisa"} (${p.datum})
+            ${formatEUR(p.iznos)} — ${p.opis || "Bez opisa"} (${formatDatumEU(p.datum)})
             <button class="btn-edit urediPrihodBtn" data-id="${p.id}">
                 <span>✏️</span><span>Uredi</span>
             </button>
@@ -1336,12 +1336,39 @@ function normalizeText(text) {
         .replace(/Đ/g, "Dj");
 }
 
+// Gumbi
 const exportDataBtn = document.getElementById("exportDataBtn");
 const exportModal = document.getElementById("exportModal");
+const exportExcelBtn = document.getElementById("exportExcelBtn");
+const exportPdfBtn = document.getElementById("exportPdfBtn");
 
-if (exportDataBtn && exportModal) {
+// Otvori modal iz postavki
+if (exportDataBtn) {
     exportDataBtn.addEventListener("click", () => {
         exportModal.classList.remove("hidden");
+    });
+}
+
+// Zatvori modal
+document.querySelectorAll(".closeModalBtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        exportModal.classList.add("hidden");
+    });
+});
+
+// Excel export
+if (exportExcelBtn) {
+    exportExcelBtn.addEventListener("click", () => {
+        exportToExcel();
+        exportModal.classList.add("hidden");
+    });
+}
+
+// PDF export
+if (exportPdfBtn) {
+    exportPdfBtn.addEventListener("click", () => {
+        exportToPDF();
+        exportModal.classList.add("hidden");
     });
 }
 
@@ -1422,6 +1449,7 @@ async function exportToPDF() {
     const mjesecTransakcije = transakcije.filter(t => jeUOdabranomMjesecuIGodini(t.datum));
     const mjesecPrihodi = prihodi.filter(p => jeUOdabranomMjesecuIGodini(p.datum));
 
+    // Naslov
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
     doc.text(`Izvjestaj za ${normalizeText(mjesec)}. ${godina}.`, 300, y, { align: "center" });
@@ -1431,18 +1459,28 @@ async function exportToPDF() {
     doc.line(margin, y, 555, y);
     y += 20;
 
+    // --- MOBILNO SIGURNO CRTANJE GRAFA ---
     const canvas = document.getElementById("grafKategorije");
-    const imgData = canvas.toDataURL("image/png");
+
+    const smallCanvas = document.createElement("canvas");
+    smallCanvas.width = canvas.width / 2;
+    smallCanvas.height = canvas.height / 2;
+
+    const ctx2 = smallCanvas.getContext("2d");
+    ctx2.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
+
+    const imgData = smallCanvas.toDataURL("image/png");
 
     const grafWidth = 300;
-    const grafHeight = canvas.height * (grafWidth / canvas.width);
+    const grafHeight = smallCanvas.height * (grafWidth / smallCanvas.width);
 
-    doc.addImage(imgData, "PNG", 150, y, grafWidth, grafHeight);
+    doc.addImage(imgData, "PNG", 150, y, grafWidth, grafHeight, undefined, "FAST");
     y += grafHeight + 30;
 
     doc.line(margin, y, 555, y);
     y += 30;
 
+    // Transakcije
     doc.setFontSize(18);
     doc.text("Transakcije", margin, y);
     y += 25;
@@ -1465,6 +1503,7 @@ async function exportToPDF() {
     doc.line(margin, y, 555, y);
     y += 30;
 
+    // Prihodi
     doc.setFontSize(18);
     doc.text("Prihodi", margin, y);
     y += 25;
@@ -1482,24 +1521,25 @@ async function exportToPDF() {
         }
     });
 
+    // --- PRECIZNA DETEKCIJA MOBITELA ---
+    const isMobile =
+        (/Android|iPhone|iPad/i.test(navigator.userAgent)) &&
+        !navigator.userAgent.includes("Windows") &&
+        !navigator.userAgent.includes("Macintosh");
+
+    if (isMobile) {
+        const pdfBlob = doc.output("blob");
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Izvjestaj_${normalizeText(mjesec)}_${godina}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        return;
+    }
+
+    // Desktop normalno
     doc.save(`Izvjestaj_${normalizeText(mjesec)}_${godina}.pdf`);
-}
-
-const exportExcelBtn = document.getElementById("exportExcelBtn");
-const exportPdfBtn = document.getElementById("exportPdfBtn");
-
-if (exportExcelBtn) {
-    exportExcelBtn.addEventListener("click", () => {
-        exportToExcel();
-        exportModal.classList.add("hidden");
-    });
-}
-
-if (exportPdfBtn) {
-    exportPdfBtn.addEventListener("click", () => {
-        exportToPDF();
-        exportModal.classList.add("hidden");
-    });
 }
 
 /* ---------------------------------------------------------
@@ -1548,6 +1588,15 @@ if (popupYes) {
         pendingDeleteId = null;
         popup.classList.add("hidden");
     });
+}
+
+/* ---------------------------------------------------------
+   Europski format datuma (DD.MM.GGGG.)
+--------------------------------------------------------- */
+
+function formatDatumEU(d) {
+    const [god, mj, dan] = d.split("-");
+    return `${dan}.${mj}.${god}.`;
 }
 
 /* ---------------------------------------------------------
