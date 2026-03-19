@@ -405,6 +405,7 @@ function otvoriPrihodModal(prihod = null) {
 }
 
 const spremiPrihodBtn = document.getElementById("spremiPrihodBtn");
+
 if (spremiPrihodBtn) {
     spremiPrihodBtn.addEventListener("click", () => {
         const iznosInput = document.getElementById("editPrihodIznos");
@@ -422,9 +423,11 @@ if (spremiPrihodBtn) {
         if (aktivniPrihodID) {
             const p = prihodi.find(p => p.id === aktivniPrihodID);
             if (!p) return;
+
             p.iznos = iznos;
             p.datum = datum;
             p.opis = opis;
+
         } else {
             prihodi.push({
                 id: "prih" + Date.now(),
@@ -433,6 +436,11 @@ if (spremiPrihodBtn) {
                 opis
             });
         }
+
+        // RESETIRANJE POLJA NAKON SPREMANJA
+        iznosInput.value = "";
+        opisInput.value = "";
+        aktivniPrihodID = null;
 
         spremiSve();
         zatvoriSveModale();
@@ -575,6 +583,11 @@ if (dodajTransakcijuBtn) {
                 d.setMonth(d.getMonth() + 1);
             }
         }
+
+        // RESETIRANJE POLJA NAKON SPREMANJA
+        kategorijaSelect.value = "";
+        iznosInput.value = "";
+        opisInput.value = "";
 
         spremiSve();
         prikaziTransakcije();
