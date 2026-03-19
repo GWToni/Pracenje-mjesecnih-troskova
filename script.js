@@ -546,7 +546,7 @@ if (dodajTransakcijuBtn) {
 
         if (!kategorija || !iznos || !datum) return;
 
-        const ponavljaj = ponavljajCheckbox && ponavljajCheckbox.checked;
+        const ponavljaj = !document.getElementById("repeatOptions").classList.contains("hidden");
 
         if (!ponavljaj) {
             transakcije.push({
@@ -682,6 +682,26 @@ if (spremiTransakcijuBtn) {
         zatvoriSveModale();
         prikaziTransakcije();
         osvjeziLijeviPanel();
+    });
+}
+
+// Novi toggle za dodavanje transakcije
+const ponavljajBtn = document.getElementById("ponavljajBtn");
+if (ponavljajBtn) {
+    ponavljajBtn.addEventListener("click", () => {
+        const box = document.getElementById("repeatOptions");
+        if (!box) return;
+        box.classList.toggle("hidden");
+    });
+}
+
+// Novi toggle za uređivanje transakcije
+const editPonavljajBtn = document.getElementById("editPonavljajBtn");
+if (editPonavljajBtn) {
+    editPonavljajBtn.addEventListener("click", () => {
+        const box = document.getElementById("editRepeatOptions");
+        if (!box) return;
+        box.classList.toggle("hidden");
     });
 }
 
