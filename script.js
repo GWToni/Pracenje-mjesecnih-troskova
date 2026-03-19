@@ -1449,6 +1449,12 @@ async function exportToPDF() {
     const mjesecTransakcije = transakcije.filter(t => jeUOdabranomMjesecuIGodini(t.datum));
     const mjesecPrihodi = prihodi.filter(p => jeUOdabranomMjesecuIGodini(p.datum));
 
+    // DETEKCIJA MOBITELA — samo ovdje!
+    const isMobile =
+        (/Android|iPhone|iPad/i.test(navigator.userAgent)) &&
+        !navigator.userAgent.includes("Windows") &&
+        !navigator.userAgent.includes("Macintosh");
+
     // Naslov
     doc.setFontSize(22);
     doc.setFont("helvetica", "bold");
@@ -1459,33 +1465,35 @@ async function exportToPDF() {
     doc.line(margin, y, 555, y);
     y += 20;
 
-// --- SIGURNO CRTANJE GRAFA NA MOBITELU ---
-const canvas = document.getElementById("grafKategorije");
+    // --- SIGURNO CRTANJE GRAFA NA MOBITELU ---
+    const canvas = document.getElementById("grafKategorije");
 
-if (!canvas || canvas.width === 0 || canvas.height === 0) {
-    doc.setFontSize(16);
-    doc.text("Graf nije dostupan na ovom uređaju.", margin, y);
-    y += 40;
-} else {
-    const smallCanvas = document.createElement("canvas");
-    smallCanvas.width = canvas.width / 2;
-    smallCanvas.height = canvas.height / 2;
+    if (isMobile) {
+        // MOBITEL → preskoči graf
+        doc.setFontSize(16);
+        doc.text("Graf nije uključen u PDF na mobilnim uređajima.", margin, y);
+        y += 40;
+    } else {
+        // PC → normalno dodaj graf
+        const smallCanvas = document.createElement("canvas");
+        smallCanvas.width = canvas.width / 2;
+        smallCanvas.height = canvas.height / 2;
 
-    const ctx2 = smallCanvas.getContext("2d");
-    ctx2.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
+        const ctx2 = smallCanvas.getContext("2d");
+        ctx2.drawImage(canvas, 0, 0, smallCanvas.width, smallCanvas.height);
 
-    const imgData = smallCanvas.toDataURL("image/png");
+        const imgData = smallCanvas.toDataURL("image/png");
 
-    const grafWidth = 300;
-    const grafHeight = smallCanvas.height * (grafWidth / smallCanvas.width);
+        const grafWidth = 300;
+        const grafHeight = smallCanvas.height * (grafWidth / smallCanvas.width);
 
-    doc.addImage(imgData, "PNG", 150, y, grafWidth, grafHeight, undefined, "FAST");
-    y += grafHeight + 30;
-}
+        doc.addImage(imgData, "PNG", 150, y, grafWidth, grafHeight, undefined, "FAST");
+        y += grafHeight + 30;
+    }
 
-// linija ispod grafa (ili poruke)
-doc.line(margin, y, 555, y);
-y += 30;
+    // linija ispod grafa
+    doc.line(margin, y, 555, y);
+    y += 30;
 
     // Transakcije
     doc.setFontSize(18);
@@ -1528,12 +1536,7 @@ y += 30;
         }
     });
 
-    // --- PRECIZNA DETEKCIJA MOBITELA ---
-    const isMobile =
-        (/Android|iPhone|iPad/i.test(navigator.userAgent)) &&
-        !navigator.userAgent.includes("Windows") &&
-        !navigator.userAgent.includes("Macintosh");
-
+    // --- DOWNLOAD NA MOBITELU ---
     if (isMobile) {
         const pdfBlob = doc.output("blob");
         const url = URL.createObjectURL(pdfBlob);
