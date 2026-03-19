@@ -1196,3 +1196,8 @@ footer p {
         display: none !important;
     }
 }
+
+/* razmak za tipku ponavljaj svaki mjesec */
+.repeat-btn {
+    margin: 12px 0;
+}
