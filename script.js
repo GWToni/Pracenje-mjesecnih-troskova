@@ -1484,7 +1484,7 @@ async function exportToPDF() {
     if (isMobile) {
         // MOBITEL → preskoči graf
         doc.setFontSize(16);
-        doc.text("Graf nije uključen u PDF na mobilnim uređajima.", margin, y);
+        doc.text("Graf nije dostupan preko mobitela.", margin, y);
         y += 40;
     } else {
         // PC → normalno dodaj graf
