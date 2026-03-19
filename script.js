@@ -1459,9 +1459,14 @@ async function exportToPDF() {
     doc.line(margin, y, 555, y);
     y += 20;
 
-    // --- MOBILNO SIGURNO CRTANJE GRAFA ---
-    const canvas = document.getElementById("grafKategorije");
+// --- SIGURNO CRTANJE GRAFA NA MOBITELU ---
+const canvas = document.getElementById("grafKategorije");
 
+if (!canvas || canvas.width === 0 || canvas.height === 0) {
+    doc.setFontSize(16);
+    doc.text("Graf nije dostupan na ovom uređaju.", margin, y);
+    y += 40;
+} else {
     const smallCanvas = document.createElement("canvas");
     smallCanvas.width = canvas.width / 2;
     smallCanvas.height = canvas.height / 2;
@@ -1476,9 +1481,11 @@ async function exportToPDF() {
 
     doc.addImage(imgData, "PNG", 150, y, grafWidth, grafHeight, undefined, "FAST");
     y += grafHeight + 30;
+}
 
-    doc.line(margin, y, 555, y);
-    y += 30;
+// linija ispod grafa (ili poruke)
+doc.line(margin, y, 555, y);
+y += 30;
 
     // Transakcije
     doc.setFontSize(18);
