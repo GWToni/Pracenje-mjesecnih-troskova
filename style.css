@@ -1188,19 +1188,17 @@ footer p {
         margin-left: 4px;
         margin-right: 4px;
     }
+
+    /* razmak za tipku ponavljaj svaki mjesec */
+    .repeat-btn {
+        margin-bottom: 20px !important;
+        margin-top: 10px !important;
+    }
 }
 
 /* Kalkulator nestaje ispod 1224px */
 @media (max-width: 1224px) {
     #kalkulator {
         display: none !important;
-    }
-}
-
-/* razmak za tipku ponavljaj svaki mjesec */
-@media (max-width: 768px) {
-    .repeat-btn {
-        margin-bottom: 20px !important;
-        margin-top: 10px !important;
     }
 }
