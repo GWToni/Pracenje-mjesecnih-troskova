@@ -1199,5 +1199,5 @@ footer p {
 
 /* razmak za tipku ponavljaj svaki mjesec */
 .repeat-btn {
-    margin: 12px 0;
+    margin-bottom: 12px; /* razmak ispod tipke */
 }
