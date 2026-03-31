@@ -1482,7 +1482,7 @@ async function exportToPDF() {
     const mjesecTransakcije = transakcije.filter(t => jeUOdabranomMjesecuIGodini(t.datum));
     const mjesecPrihodi = prihodi.filter(p => jeUOdabranomMjesecuIGodini(p.datum));
 
-    // DETEKCIJA MOBITELA — samo ovdje!
+    // DETEKCIJA MOBITELA
     const isMobile =
         (/Android|iPhone|iPad/i.test(navigator.userAgent)) &&
         !navigator.userAgent.includes("Windows") &&
@@ -1498,16 +1498,14 @@ async function exportToPDF() {
     doc.line(margin, y, 555, y);
     y += 20;
 
-    // --- SIGURNO CRTANJE GRAFA NA MOBITELU ---
+    // --- GRAF ---
     const canvas = document.getElementById("grafKategorije");
 
     if (isMobile) {
-        // MOBITEL → preskoči graf
         doc.setFontSize(16);
         doc.text("Graf nije dostupan preko mobitela.", margin, y);
         y += 40;
     } else {
-        // PC → normalno dodaj graf
         const smallCanvas = document.createElement("canvas");
         smallCanvas.width = canvas.width / 2;
         smallCanvas.height = canvas.height / 2;
@@ -1528,7 +1526,49 @@ async function exportToPDF() {
     doc.line(margin, y, 555, y);
     y += 30;
 
-    // Transakcije
+    // ============================
+    //   POSTOTCI PO KATEGORIJAMA
+    // ============================
+
+    // Izračun potrošnje po kategorijama
+    const sumaPoKategoriji = {};
+    mjesecTransakcije.forEach(t => {
+        if (!sumaPoKategoriji[t.kategorija]) sumaPoKategoriji[t.kategorija] = 0;
+        sumaPoKategoriji[t.kategorija] += t.iznos;
+    });
+
+    const ukupnoTroskovi = mjesecTransakcije.reduce((s, t) => s + t.iznos, 0);
+
+    doc.setFontSize(18);
+    doc.text("Udio po kategorijama", margin, y);
+    y += 25;
+
+    doc.setFontSize(12);
+
+    for (let katId in sumaPoKategoriji) {
+        const kat = kategorije.find(k => k.id === katId);
+        const naziv = normalizeText(kat?.naziv || "Nepoznato");
+        const iznos = sumaPoKategoriji[katId];
+        const postotak = ukupnoTroskovi > 0 ? ((iznos / ukupnoTroskovi) * 100).toFixed(1) : 0;
+
+        const line = `${naziv} — ${postotak}% — ${iznos.toFixed(2)} EUR`;
+        doc.text(line, margin, y);
+
+        y += 20;
+        if (y > 780) {
+            doc.addPage();
+            y = margin;
+        }
+    }
+
+    y += 10;
+    doc.line(margin, y, 555, y);
+    y += 30;
+
+    // ============================
+    //   TRANSKACIJE
+    // ============================
+
     doc.setFontSize(18);
     doc.text("Transakcije", margin, y);
     y += 25;
@@ -1551,7 +1591,10 @@ async function exportToPDF() {
     doc.line(margin, y, 555, y);
     y += 30;
 
-    // Prihodi
+    // ============================
+    //   PRIHODI
+    // ============================
+
     doc.setFontSize(18);
     doc.text("Prihodi", margin, y);
     y += 25;
@@ -1584,7 +1627,6 @@ async function exportToPDF() {
     // Desktop normalno
     doc.save(`Izvjestaj_${normalizeText(mjesec)}_${godina}.pdf`);
 }
-
 /* ---------------------------------------------------------
    UNIVERZALNO BRISANJE (PRIHODI + TRANSAKCIJE)
 --------------------------------------------------------- */
