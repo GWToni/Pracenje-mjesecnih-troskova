@@ -29,7 +29,7 @@
 <nav>
     <ul>
         <li class="nav-item active" data-target="spendingContent">Potrošnja</li>
-        <li class="nav-item" data-target="transakcijeContent">Transakcije</li>
+        <li class="nav-item" data-target="transakcijeContent">Troškovi</li>
         <li class="nav-item" data-target="kategorijeContent">Kategorije</li>
     </ul>
 
@@ -44,7 +44,7 @@
         <h3>Izbornik</h3>
         <ul>
             <li data-target="spendingContent" class="mobile-nav-item">Pregled potrošnje</li>
-            <li data-target="transakcijeContent" class="mobile-nav-item">Transakcije</li>
+            <li data-target="transakcijeContent" class="mobile-nav-item">Troškovi</li>
             <li data-target="kategorijeContent" class="mobile-nav-item">Kategorije</li>
             <li id="mobileSettingsBtn">Postavke</li>
         </ul>
@@ -122,7 +122,7 @@
 
         <!-- TRANSAKCIJE SADRŽAJ -->
         <section id="transakcijeContent" class="contentSection hidden">
-            <h2>Transakcije</h2>
+            <h2>Troškovi</h2>
 
             <div class="transakcije-layout">
 
@@ -141,8 +141,8 @@
                         <input type="text" id="opisUnos" placeholder="Opis (npr. Konzum, ručak...)">
 
                         <button id="ponavljajBtn" class="repeat-btn">
-    🔁 Ponavljaj svaki mjesec
-</button>
+                            🔁 Ponavljaj svaki mjesec
+                        </button>
 
                         <div id="repeatOptions" class="hidden">
                             <label for="repeatStart">Od datuma:</label>
@@ -152,10 +152,10 @@
                             <input type="date" id="repeatEnd">
                         </div>
 
-                        <button id="dodajTransakciju">Dodaj transakciju</button>
+                        <button id="dodajTransakciju">Dodaj trošak</button>
                     </div>
 
-                    <h3>Transakcije za odabrani mjesec</h3>
+                    <h3>Troškovi za odabrani mjesec</h3>
                     <ul id="listaTransakcija"></ul>
                 </div>
 
@@ -213,7 +213,7 @@
 <!-- MODALI (bez promjena) -->
 <div id="transakcijaModal" class="modal-overlay hidden">
     <div class="modal">
-        <h3>Uredi transakciju</h3>
+        <h3>Uredi trošak</h3>
 
         <label for="editKategorija">Kategorija:</label>
         <select id="editKategorija"></select>
@@ -228,8 +228,8 @@
         <input type="text" id="editOpis">
 
         <button id="ponavljajBtn" class="repeat-btn">
-    🔁 Ponavljaj svaki mjesec
-</button>
+            🔁 Ponavljaj svaki mjesec
+        </button>
 
         <div id="editRepeatOptions" class="hidden">
             <label for="editRepeatStart">Od datuma:</label>
@@ -318,7 +318,7 @@
             </div>
 
             <div class="option option-3">
-                <button id="akcijaObrisiSve" class="btn-danger">Obriši sve transakcije</button>
+                <button id="akcijaObrisiSve" class="btn-danger">Obriši sve troškove</button>
                 <p class="option-desc">Ovo se ne može vratiti!</p>
             </div>
         </div>
