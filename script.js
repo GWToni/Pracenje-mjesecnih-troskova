@@ -958,23 +958,32 @@ function osvjeziGraf() {
             }]
         };
         options = {
-            responsive: true,
-            maintainAspectRatio: true,
-            cutout: "55%",
-            plugins: {
-                legend: { 
-                    position: "bottom",
-                    labels: {
-                        usePointStyle: true,
-                        padding: 20,
-                        font: { size: 13 },
-                        color: legendLabelColor,
-                        boxWidth: 12,
-                        boxHeight: 12
-                    }
+    responsive: true,
+    maintainAspectRatio: true,
+    cutout: "55%",
+    plugins: {
+        legend: { 
+            position: "bottom",
+            labels: {
+                usePointStyle: true,
+                padding: 20,
+                font: { size: 13 },
+                color: legendLabelColor,
+                boxWidth: 12,
+                boxHeight: 12
+            }
+        },
+        tooltip: {
+            callbacks: {
+                label: function (ctx) {
+                    const iznos = formatEUR(ctx.raw);
+                    return `${ctx.label}: ${iznos}`;
                 }
             }
-        };
+        }
+    }
+};
+
     } else if (type === "bar" || type === "line") {
         // Za bar i line - SVAKA kategorija je vlastiti dataset!
         const datasets = labels.map((label, i) => ({
